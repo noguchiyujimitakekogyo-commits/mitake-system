@@ -15,9 +15,15 @@ from firebase_admin import firestore
 from config import all_staff_list, CATEGORY_LIST, YEAR_LIST, MONTH_LIST, FULL_DETAIL_A, FULL_DETAIL_B, FULL_DETAIL_C, FULL_DETAIL_D
 
 # --- Firestoreの初期化 ---
-# Streamlitは画面更新のたびにコードが再実行されるため、既に接続済みの場合はスキップさせます
 if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
+    if "FIREBASE_JSON" in st.secrets:
+        # クラウド環境：Streamlitの秘密金庫から鍵を読み込む
+        key_dict = json.loads(st.secrets["FIREBASE_JSON"])
+        cred = credentials.Certificate(key_dict)
+    else:
+        # 手元のPC環境：JSONファイルから鍵を読み込む
+        cred = credentials.Certificate("serviceAccountKey.json")
+    
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
